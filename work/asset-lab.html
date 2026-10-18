@@ -1,0 +1,1453 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portfolio visual boards</title>
+    <style>
+      :root {
+        --paper: #ece5d8;
+        --ink: #111211;
+        --orange: #ef5b32;
+        --tech: "Bahnschrift", "Arial Narrow", sans-serif;
+        --serif: "Noto Serif SC", "Songti SC", serif;
+        --sans: "Noto Sans SC", "Microsoft YaHei UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        width: 1600px;
+        margin: 0;
+        background: #050606;
+        color: var(--paper);
+        font-family: var(--sans);
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .board {
+        position: relative;
+        width: 1600px;
+        height: 1000px;
+        overflow: hidden;
+        isolation: isolate;
+      }
+
+      .board::after {
+        position: absolute;
+        z-index: 30;
+        inset: 0;
+        content: "";
+        pointer-events: none;
+        opacity: 0.08;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
+        mix-blend-mode: soft-light;
+      }
+
+      .meta {
+        position: absolute;
+        z-index: 20;
+        top: 42px;
+        right: 50px;
+        left: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: rgba(235, 228, 216, 0.62);
+        font-family: var(--tech);
+        font-size: 10px;
+        letter-spacing: 0.15em;
+      }
+
+      .meta__group {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+
+      .meta__dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--orange);
+      }
+
+      .meta__rule {
+        width: 68px;
+        height: 1px;
+        background: rgba(235, 228, 216, 0.23);
+      }
+
+      .corner {
+        position: absolute;
+        z-index: 20;
+        width: 28px;
+        height: 28px;
+        opacity: 0.58;
+      }
+
+      .corner--tl {
+        top: 80px;
+        left: 50px;
+        border-top: 1px solid rgba(235, 228, 216, 0.38);
+        border-left: 1px solid rgba(235, 228, 216, 0.38);
+      }
+
+      .corner--br {
+        right: 50px;
+        bottom: 68px;
+        border-right: 1px solid rgba(235, 228, 216, 0.38);
+        border-bottom: 1px solid rgba(235, 228, 216, 0.38);
+      }
+
+      .board-footer {
+        position: absolute;
+        z-index: 20;
+        right: 50px;
+        bottom: 42px;
+        left: 50px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        color: rgba(235, 228, 216, 0.5);
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.13em;
+      }
+
+      /* Museum */
+
+      .museum {
+        background:
+          radial-gradient(circle at 74% 22%, rgba(108, 86, 53, 0.28), transparent 31%),
+          radial-gradient(circle at 19% 73%, rgba(54, 72, 61, 0.28), transparent 35%),
+          linear-gradient(135deg, #090b0a 0%, #121511 48%, #090909 100%);
+      }
+
+      .museum__ghost {
+        position: absolute;
+        z-index: 0;
+        top: 132px;
+        left: 58px;
+        color: transparent;
+        font-family: var(--tech);
+        font-size: 300px;
+        font-weight: 600;
+        letter-spacing: -0.07em;
+        line-height: 0.8;
+        opacity: 0.55;
+        -webkit-text-stroke: 1px rgba(220, 207, 183, 0.07);
+      }
+
+      .museum__sun {
+        position: absolute;
+        z-index: 0;
+        top: 151px;
+        right: 219px;
+        width: 495px;
+        height: 495px;
+        border: 1px solid rgba(219, 175, 115, 0.12);
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 72px rgba(219, 175, 115, 0.018),
+          0 0 0 144px rgba(219, 175, 115, 0.014);
+      }
+
+      .poster {
+        position: absolute;
+        z-index: 4;
+        overflow: hidden;
+        box-shadow: 0 35px 85px rgba(0, 0, 0, 0.46);
+      }
+
+      .poster::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        pointer-events: none;
+        opacity: 0.17;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 3px,
+          rgba(0, 0, 0, 0.05) 4px
+        );
+      }
+
+      .poster--maize {
+        top: 184px;
+        left: 206px;
+        width: 498px;
+        height: 664px;
+        padding: 31px 32px 28px;
+        color: #14130f;
+        background:
+          linear-gradient(90deg, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+          #d9d1bb;
+        background-size: 25% 100%;
+        transform: rotate(-2.5deg);
+      }
+
+      .poster--maize .poster__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        line-height: 1.5;
+      }
+
+      .poster--maize .poster__top strong {
+        display: block;
+        color: #9e3f22;
+        font-family: var(--sans);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.24em;
+      }
+
+      .poster--maize .poster__top span {
+        text-align: right;
+      }
+
+      .poster__edition {
+        display: block;
+        margin-top: 21px;
+        padding-top: 10px;
+        border-top: 1px solid rgba(20, 19, 15, 0.26);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.14em;
+      }
+
+      .maize-art {
+        position: absolute;
+        top: 127px;
+        left: 32px;
+        width: 282px;
+        height: 403px;
+      }
+
+      .poster--maize .poster__title {
+        position: absolute;
+        top: 153px;
+        right: 24px;
+        color: #15130f;
+        font-family: var(--serif);
+        font-size: 86px;
+        font-weight: 600;
+        letter-spacing: -0.09em;
+        line-height: 0.91;
+        writing-mode: vertical-rl;
+      }
+
+      .poster--maize .poster__title em {
+        color: #b54625;
+        font-style: normal;
+      }
+
+      .poster--maize .poster__bottom {
+        position: absolute;
+        right: 32px;
+        bottom: 27px;
+        left: 32px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-top: 12px;
+        border-top: 1px solid rgba(20, 19, 15, 0.28);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.10em;
+      }
+
+      .poster--maize .poster__bottom strong {
+        color: #a44224;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      .poster--rain {
+        top: 223px;
+        right: 214px;
+        width: 445px;
+        height: 610px;
+        padding: 29px 30px 26px;
+        color: #e4dccb;
+        border: 1px solid rgba(219, 231, 221, 0.15);
+        background:
+          linear-gradient(155deg, rgba(86, 117, 107, 0.32), transparent 46%),
+          #15211e;
+        transform: rotate(2.2deg);
+      }
+
+      .poster--rain::before {
+        position: absolute;
+        inset: 15px;
+        content: "";
+        border: 1px solid rgba(221, 231, 219, 0.1);
+      }
+
+      .poster--rain .poster__top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        color: rgba(228, 220, 203, 0.66);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.12em;
+        line-height: 1.5;
+      }
+
+      .poster--rain .poster__top strong {
+        display: block;
+        color: #b6c7ba;
+        font-family: var(--sans);
+        font-size: 13px;
+        letter-spacing: 0.22em;
+      }
+
+      .rain-art {
+        position: absolute;
+        top: 135px;
+        right: 28px;
+        width: 320px;
+        height: 360px;
+        opacity: 0.94;
+      }
+
+      .poster--rain .poster__title {
+        position: absolute;
+        top: 144px;
+        left: 27px;
+        color: #e8deca;
+        font-family: var(--serif);
+        font-size: 82px;
+        font-weight: 500;
+        letter-spacing: -0.09em;
+        line-height: 0.95;
+        writing-mode: vertical-rl;
+      }
+
+      .poster--rain .poster__title em {
+        color: #8fa99a;
+        font-style: normal;
+      }
+
+      .poster--rain .poster__bottom {
+        position: absolute;
+        right: 29px;
+        bottom: 26px;
+        left: 29px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-top: 11px;
+        color: rgba(228, 220, 203, 0.62);
+        border-top: 1px solid rgba(219, 231, 221, 0.2);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.1em;
+      }
+
+      .poster--rain .poster__bottom strong {
+        color: #d6c6aa;
+        font-size: 13px;
+        font-weight: 400;
+      }
+
+      .museum__seal {
+        position: absolute;
+        z-index: 7;
+        top: 493px;
+        left: 741px;
+        display: grid;
+        place-items: center;
+        width: 90px;
+        height: 90px;
+        color: #dfb985;
+        border: 1px solid rgba(220, 182, 131, 0.36);
+        border-radius: 50%;
+        background: rgba(9, 11, 10, 0.72);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.36);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.1em;
+        line-height: 1.6;
+        text-align: center;
+        backdrop-filter: blur(9px);
+      }
+
+      .museum__caption {
+        position: absolute;
+        z-index: 6;
+        top: 300px;
+        right: 55px;
+        width: 122px;
+        color: rgba(225, 211, 190, 0.44);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.12em;
+        line-height: 1.85;
+        text-align: right;
+      }
+
+      .museum__caption::before {
+        display: block;
+        width: 58px;
+        height: 1px;
+        margin: 0 0 12px auto;
+        content: "";
+        background: rgba(225, 211, 190, 0.26);
+      }
+
+      /* Seasons */
+
+      .seasons {
+        color: #e9dfce;
+        background:
+          linear-gradient(90deg, rgba(8, 8, 7, 0.98) 0%, rgba(15, 13, 10, 0.76) 36%, transparent 68%),
+          radial-gradient(circle at 73% 33%, rgba(255, 175, 95, 0.4), transparent 29%),
+          linear-gradient(145deg, #14110d, #25180e 56%, #0b0b0a);
+      }
+
+      .seasons__light {
+        position: absolute;
+        z-index: 0;
+        top: -210px;
+        right: 107px;
+        width: 820px;
+        height: 820px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255, 191, 112, 0.25), transparent 66%);
+        filter: blur(30px);
+      }
+
+      .seasons__window {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        right: 276px;
+        width: 512px;
+        height: 100%;
+        background:
+          linear-gradient(90deg, transparent, rgba(255, 218, 166, 0.07) 35%, rgba(255, 224, 181, 0.17) 52%, transparent 75%);
+        transform: skewX(-8deg);
+        filter: blur(14px);
+      }
+
+      .seasons__horizon {
+        position: absolute;
+        z-index: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        height: 47%;
+        background:
+          linear-gradient(180deg, transparent, rgba(21, 31, 25, 0.64) 60%, rgba(9, 13, 10, 0.94)),
+          repeating-linear-gradient(0deg, transparent 0, transparent 42px, rgba(235, 215, 180, 0.035) 43px);
+      }
+
+      .seasons__copy {
+        position: absolute;
+        z-index: 8;
+        top: 202px;
+        left: 90px;
+        width: 700px;
+      }
+
+      .seasons__eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 47px;
+        color: rgba(233, 223, 206, 0.54);
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.17em;
+      }
+
+      .seasons__eyebrow i {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #ef6d3e;
+      }
+
+      .seasons h1 {
+        margin: 0;
+        color: #eee3d2;
+        font-family: var(--serif);
+        font-size: 172px;
+        font-weight: 500;
+        letter-spacing: -0.1em;
+        line-height: 0.92;
+      }
+
+      .seasons h1 span {
+        display: block;
+        margin-left: 154px;
+        color: #e16a3f;
+      }
+
+      .seasons__sub {
+        display: flex;
+        align-items: flex-start;
+        gap: 44px;
+        margin-top: 55px;
+        color: rgba(233, 223, 206, 0.54);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.13em;
+        line-height: 1.8;
+      }
+
+      .seasons__sub strong {
+        color: rgba(233, 223, 206, 0.82);
+        font-size: 11px;
+        font-weight: 400;
+      }
+
+      .seasons__bottle {
+        position: absolute;
+        z-index: 5;
+        top: 266px;
+        right: 403px;
+        width: 188px;
+        height: 455px;
+        border: 1px solid rgba(255, 238, 211, 0.35);
+        border-radius: 42px 42px 65px 65px;
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.16) 22%, rgba(255, 255, 255, 0.025) 58%, rgba(255, 235, 203, 0.12)),
+          linear-gradient(180deg, rgba(255, 228, 189, 0.04) 0%, rgba(224, 147, 71, 0.22) 62%, rgba(106, 62, 28, 0.35) 100%);
+        box-shadow:
+          inset -16px 0 35px rgba(255, 227, 190, 0.07),
+          inset 16px 0 32px rgba(255, 255, 255, 0.045),
+          0 30px 70px rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(4px);
+      }
+
+      .seasons__bottle::before {
+        position: absolute;
+        top: -54px;
+        left: 55px;
+        width: 76px;
+        height: 55px;
+        content: "";
+        border: 1px solid rgba(255, 238, 211, 0.27);
+        border-radius: 12px 12px 4px 4px;
+        background: linear-gradient(90deg, #664126, #bd7d45 40%, #6c452b);
+      }
+
+      .seasons__bottle::after {
+        position: absolute;
+        top: 41px;
+        right: 17px;
+        bottom: 55px;
+        left: 17px;
+        content: "";
+        border: 1px solid rgba(255, 239, 213, 0.2);
+        border-radius: 27px 27px 48px 48px;
+      }
+
+      .bottle__label {
+        position: absolute;
+        z-index: 2;
+        top: 195px;
+        right: 0;
+        left: 0;
+        padding: 17px 12px;
+        color: rgba(247, 234, 213, 0.88);
+        border-top: 1px solid rgba(255, 238, 211, 0.2);
+        border-bottom: 1px solid rgba(255, 238, 211, 0.2);
+        background: rgba(92, 55, 28, 0.22);
+        font-family: var(--serif);
+        font-size: 26px;
+        letter-spacing: 0.13em;
+        text-align: center;
+      }
+
+      .bottle__label small {
+        display: block;
+        margin-top: 9px;
+        font-family: var(--tech);
+        font-size: 6px;
+        letter-spacing: 0.19em;
+      }
+
+      .seasons__right-copy {
+        position: absolute;
+        z-index: 7;
+        top: 295px;
+        right: 76px;
+        color: rgba(236, 221, 198, 0.57);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.13em;
+        line-height: 2;
+        writing-mode: vertical-rl;
+      }
+
+      .seasons__right-copy b {
+        color: #f0d7b5;
+        font-size: 28px;
+        font-weight: 400;
+        letter-spacing: 0.03em;
+      }
+
+      .seasons__strip {
+        position: absolute;
+        z-index: 9;
+        right: 50px;
+        bottom: 83px;
+        left: 50px;
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        height: 63px;
+        gap: 5px;
+        padding: 5px;
+        border-top: 1px solid rgba(236, 221, 198, 0.19);
+        border-bottom: 1px solid rgba(236, 221, 198, 0.19);
+      }
+
+      .seasons__strip span {
+        position: relative;
+        overflow: hidden;
+        background:
+          linear-gradient(155deg, rgba(210, 145, 79, 0.16), rgba(34, 27, 20, 0.75)),
+          #16130f;
+      }
+
+      .seasons__strip span:nth-child(3n) {
+        background:
+          linear-gradient(20deg, rgba(122, 145, 118, 0.25), rgba(22, 24, 20, 0.8)),
+          #151713;
+      }
+
+      .seasons__strip span::after {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 12px;
+        height: 18px;
+        content: "";
+        border: 1px solid rgba(240, 217, 184, 0.25);
+        border-radius: 50% 50% 12% 12%;
+        transform: translate(-50%, -50%);
+      }
+
+      .seasons__counter {
+        position: absolute;
+        z-index: 8;
+        right: 91px;
+        bottom: 167px;
+        color: rgba(236, 221, 198, 0.55);
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.11em;
+        text-align: right;
+      }
+
+      .seasons__counter strong {
+        display: block;
+        margin-top: 5px;
+        color: #e9d9c0;
+        font-size: 31px;
+        font-weight: 300;
+        letter-spacing: -0.03em;
+      }
+
+      /* AIGC */
+
+      .aigc {
+        background:
+          radial-gradient(circle at 44% 50%, rgba(126, 160, 42, 0.14), transparent 24%),
+          linear-gradient(145deg, #070807, #0b0d0b 54%, #060706);
+      }
+
+      .aigc__grid {
+        position: absolute;
+        inset: 0;
+        opacity: 0.7;
+        background-image:
+          linear-gradient(to right, rgba(217, 255, 84, 0.045) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(217, 255, 84, 0.045) 1px, transparent 1px);
+        background-size: 100px 100px;
+        mask-image: radial-gradient(circle at 42% 52%, #000 0, transparent 67%);
+      }
+
+      .aigc__index {
+        position: absolute;
+        z-index: 1;
+        top: 140px;
+        right: 62px;
+        color: transparent;
+        font-family: var(--tech);
+        font-size: 480px;
+        font-weight: 600;
+        letter-spacing: -0.075em;
+        line-height: 0.75;
+        opacity: 0.54;
+        -webkit-text-stroke: 1px rgba(224, 255, 131, 0.07);
+      }
+
+      .aigc__chrome {
+        position: absolute;
+        z-index: 4;
+        top: 169px;
+        left: 348px;
+        width: 674px;
+        height: 674px;
+        border-radius: 50%;
+        background:
+          conic-gradient(
+            from 204deg,
+            #c7ff2d 0deg,
+            #131710 33deg,
+            #ecebdc 68deg,
+            #2d3822 108deg,
+            #a8b0a3 145deg,
+            #0b0d0a 192deg,
+            #d8ff5a 235deg,
+            #4a5e24 278deg,
+            #f4f2df 312deg,
+            #141810 345deg,
+            #c7ff2d 360deg
+          );
+        filter: contrast(1.1) saturate(0.82);
+        -webkit-mask: radial-gradient(
+          farthest-side,
+          transparent calc(100% - 154px),
+          #000 calc(100% - 153px)
+        );
+        mask: radial-gradient(
+          farthest-side,
+          transparent calc(100% - 154px),
+          #000 calc(100% - 153px)
+        );
+        transform: rotate(-14deg);
+        box-shadow: 0 0 90px rgba(205, 255, 78, 0.12);
+      }
+
+      .aigc__chrome::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+        border-radius: inherit;
+        background: linear-gradient(130deg, rgba(255, 255, 255, 0.42), transparent 26%, transparent 70%, rgba(233, 255, 183, 0.22));
+        mix-blend-mode: overlay;
+      }
+
+      .aigc__core {
+        position: absolute;
+        z-index: 5;
+        top: 381px;
+        left: 578px;
+        width: 224px;
+        height: 224px;
+        border-radius: 50%;
+        background:
+          radial-gradient(circle at 34% 28%, rgba(244, 255, 222, 0.92), transparent 14%),
+          radial-gradient(circle at 54% 63%, #d6ff3f 0%, #6f8f20 17%, #1a1f15 49%, #050605 72%);
+        box-shadow:
+          0 0 90px rgba(199, 255, 50, 0.3),
+          inset -23px -16px 50px rgba(0, 0, 0, 0.67);
+        filter: blur(0.3px);
+      }
+
+      .aigc__core::after {
+        position: absolute;
+        top: 45px;
+        left: 52px;
+        width: 48px;
+        height: 23px;
+        content: "";
+        border-radius: 50%;
+        background: rgba(255, 255, 235, 0.72);
+        filter: blur(9px);
+        transform: rotate(-33deg);
+      }
+
+      .aigc__axis {
+        position: absolute;
+        z-index: 7;
+        background: rgba(215, 255, 86, 0.38);
+      }
+
+      .aigc__axis--h {
+        top: 506px;
+        right: 40px;
+        left: 40px;
+        height: 1px;
+      }
+
+      .aigc__axis--v {
+        top: 112px;
+        bottom: 88px;
+        left: 686px;
+        width: 1px;
+      }
+
+      .aigc__type {
+        position: absolute;
+        z-index: 9;
+        right: 58px;
+        bottom: 92px;
+        left: 55px;
+      }
+
+      .aigc__type p {
+        margin-bottom: 21px;
+        color: rgba(219, 255, 91, 0.64);
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.17em;
+      }
+
+      .aigc__type h1 {
+        margin: 0;
+        color: #e7eadf;
+        font-family: var(--tech);
+        font-size: 164px;
+        font-weight: 500;
+        letter-spacing: -0.075em;
+        line-height: 0.74;
+        text-transform: uppercase;
+      }
+
+      .aigc__type h1 span {
+        margin-left: 330px;
+        color: transparent;
+        font-family: var(--serif);
+        font-style: italic;
+        -webkit-text-stroke: 1px rgba(214, 255, 63, 0.8);
+      }
+
+      .aigc__side-note {
+        position: absolute;
+        z-index: 8;
+        top: 238px;
+        left: 63px;
+        width: 190px;
+        color: rgba(229, 240, 222, 0.44);
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.13em;
+        line-height: 1.8;
+      }
+
+      .aigc__side-note::before {
+        display: block;
+        width: 50px;
+        height: 1px;
+        margin-bottom: 13px;
+        content: "";
+        background: #d6ff3f;
+      }
+
+      .aigc__spec {
+        position: absolute;
+        z-index: 8;
+        right: 61px;
+        top: 225px;
+        display: flex;
+        flex-direction: column;
+        gap: 9px;
+        color: rgba(226, 240, 216, 0.42);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.13em;
+        text-align: right;
+      }
+
+      .aigc__spec strong {
+        color: #d8ff54;
+        font-size: 13px;
+        font-weight: 400;
+      }
+
+      .aigc .board-footer {
+        color: rgba(222, 240, 211, 0.42);
+      }
+
+      /* Campus */
+
+      .campus {
+        color: #171713;
+        background:
+          linear-gradient(90deg, rgba(25, 24, 20, 0.055) 1px, transparent 1px),
+          #d8d1c4;
+        background-size: 25% 100%;
+      }
+
+      .campus .meta {
+        color: rgba(23, 23, 19, 0.56);
+      }
+
+      .campus .meta__dot {
+        background: #d74822;
+      }
+
+      .campus .meta__rule {
+        background: rgba(23, 23, 19, 0.22);
+      }
+
+      .campus .corner--tl {
+        border-color: rgba(23, 23, 19, 0.38);
+      }
+
+      .campus .corner--br {
+        border-color: rgba(23, 23, 19, 0.38);
+      }
+
+      .campus__number {
+        position: absolute;
+        z-index: 0;
+        top: 200px;
+        left: 48px;
+        color: transparent;
+        font-family: var(--tech);
+        font-size: 290px;
+        font-weight: 600;
+        letter-spacing: -0.08em;
+        line-height: 0.8;
+        opacity: 0.62;
+        -webkit-text-stroke: 1px rgba(23, 23, 19, 0.1);
+      }
+
+      .campus__title {
+        position: absolute;
+        z-index: 6;
+        top: 177px;
+        left: 86px;
+        width: 540px;
+      }
+
+      .campus__title > span {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 36px;
+        color: rgba(23, 23, 19, 0.56);
+        font-family: var(--tech);
+        font-size: 9px;
+        letter-spacing: 0.15em;
+      }
+
+      .campus__title > span::before {
+        width: 33px;
+        height: 1px;
+        content: "";
+        background: #cd4925;
+      }
+
+      .campus__title h1 {
+        margin: 0;
+        font-family: var(--serif);
+        font-size: 133px;
+        font-weight: 600;
+        letter-spacing: -0.09em;
+        line-height: 0.9;
+      }
+
+      .campus__title h1 span {
+        display: block;
+        margin-left: 133px;
+        color: #cf4a25;
+      }
+
+      .campus__title p {
+        width: 400px;
+        margin-top: 48px;
+        color: rgba(23, 23, 19, 0.63);
+        font-size: 12px;
+        line-height: 1.95;
+      }
+
+      .campus__collage {
+        position: absolute;
+        z-index: 5;
+        top: 161px;
+        right: 66px;
+        width: 790px;
+        height: 615px;
+      }
+
+      .campus__tile {
+        position: absolute;
+        overflow: hidden;
+        box-shadow: 0 24px 55px rgba(49, 41, 32, 0.18);
+      }
+
+      .campus__tile::before {
+        position: absolute;
+        inset: 0;
+        content: "";
+        opacity: 0.16;
+        background: repeating-linear-gradient(
+          to bottom,
+          transparent 0,
+          transparent 4px,
+          rgba(255, 255, 255, 0.2) 5px
+        );
+        mix-blend-mode: overlay;
+      }
+
+      .campus__tile span {
+        position: absolute;
+        right: 16px;
+        bottom: 15px;
+        left: 16px;
+        display: flex;
+        justify-content: space-between;
+        padding-top: 9px;
+        color: rgba(246, 238, 224, 0.65);
+        border-top: 1px solid rgba(246, 238, 224, 0.24);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.11em;
+      }
+
+      .campus__tile--one {
+        top: 0;
+        left: 0;
+        width: 290px;
+        height: 445px;
+        background:
+          radial-gradient(circle at 65% 22%, rgba(222, 240, 185, 0.85), transparent 17%),
+          linear-gradient(160deg, #21312b, #0e1713 48%, #434a3d 100%);
+        transform: rotate(-3deg);
+      }
+
+      .campus__tile--one::after {
+        position: absolute;
+        right: -46px;
+        bottom: -78px;
+        left: -16px;
+        height: 295px;
+        content: "";
+        border-radius: 50% 50% 0 0;
+        background:
+          linear-gradient(155deg, #d4d7bb, #66745e 43%, #18221d 90%);
+        box-shadow:
+          -98px -97px 0 -62px rgba(239, 243, 218, 0.37),
+          84px -139px 0 -96px rgba(234, 240, 203, 0.36);
+      }
+
+      .campus__tile--two {
+        top: 35px;
+        left: 320px;
+        width: 252px;
+        height: 312px;
+        background:
+          radial-gradient(circle at 47% 42%, rgba(255, 157, 78, 0.7), transparent 18%),
+          radial-gradient(circle at 48% 62%, rgba(77, 92, 59, 0.8), transparent 35%),
+          linear-gradient(155deg, #682117, #17110d 65%, #0c0c0a);
+      }
+
+      .campus__tile--two::after {
+        position: absolute;
+        right: 33px;
+        bottom: -56px;
+        left: 33px;
+        height: 220px;
+        content: "";
+        border-radius: 50% 50% 7px 7px;
+        background: linear-gradient(180deg, rgba(6, 8, 7, 0.95), #050606);
+      }
+
+      .campus__tile--three {
+        top: 376px;
+        left: 264px;
+        width: 360px;
+        height: 239px;
+        color: #1c1b17;
+        background:
+          linear-gradient(90deg, transparent 49.6%, rgba(26, 23, 18, 0.08) 50%, transparent 50.4%),
+          #eee7d8;
+        transform: rotate(2.1deg);
+      }
+
+      .campus__tile--three .tile-copy {
+        position: absolute;
+        top: 25px;
+        left: 27px;
+        width: 286px;
+        color: #1b1b17;
+        font-family: var(--tech);
+        font-size: 8px;
+        letter-spacing: 0.1em;
+        line-height: 1.7;
+      }
+
+      .campus__tile--three .tile-copy strong {
+        display: block;
+        margin-bottom: 17px;
+        font-family: var(--serif);
+        font-size: 42px;
+        font-weight: 600;
+        letter-spacing: -0.06em;
+        line-height: 1.1;
+      }
+
+      .campus__tile--three .tile-copy em {
+        color: #c44b28;
+        font-style: normal;
+      }
+
+      .campus__tile--four {
+        top: 225px;
+        right: 0;
+        width: 168px;
+        height: 286px;
+        background:
+          linear-gradient(160deg, rgba(198, 214, 180, 0.35), transparent 43%),
+          linear-gradient(340deg, #c55a34, #4e2018 43%, #17120f);
+        transform: rotate(4deg);
+      }
+
+      .campus__tile--four::after {
+        position: absolute;
+        top: 65px;
+        left: 39px;
+        width: 80px;
+        height: 80px;
+        content: "";
+        border: 1px solid rgba(247, 234, 212, 0.28);
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 22px rgba(247, 234, 212, 0.04),
+          0 0 0 44px rgba(247, 234, 212, 0.02);
+      }
+
+      .campus__stats {
+        position: absolute;
+        z-index: 9;
+        right: 68px;
+        bottom: 79px;
+        display: flex;
+        gap: 31px;
+        padding: 10px 14px;
+        color: rgba(23, 23, 19, 0.64);
+        border: 1px solid rgba(23, 23, 19, 0.14);
+        background: rgba(216, 209, 196, 0.64);
+        font-family: var(--tech);
+        font-size: 7px;
+        letter-spacing: 0.1em;
+        backdrop-filter: blur(5px);
+      }
+
+      .campus__stats strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #171713;
+        font-size: 22px;
+        font-weight: 400;
+        letter-spacing: -0.03em;
+      }
+
+      .campus .board-footer {
+        color: rgba(23, 23, 19, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <section class="board museum" id="museum">
+      <div class="meta">
+        <div class="meta__group">
+          <span class="meta__dot"></span>
+          <span>SHANGHAI MUSEUM / CULTURAL CREATIVE</span>
+        </div>
+        <div class="meta__group">
+          <span>AIGC CAMPAIGN</span>
+          <span class="meta__rule"></span>
+          <span>2026</span>
+        </div>
+      </div>
+      <div class="corner corner--tl"></div>
+      <div class="corner corner--br"></div>
+      <div class="museum__ghost">DUALITY</div>
+      <div class="museum__sun"></div>
+
+      <article class="poster poster--maize">
+        <div class="poster__top">
+          <strong>MAIZE<br />GOD</strong>
+          <span>MUSEO / 美洲展<br />SHANGHAI · 2026</span>
+        </div>
+        <span class="poster__edition">EXHIBITION VISUAL / NO. 01</span>
+
+        <svg class="maize-art" viewBox="0 0 290 410" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="cornFill" x1="60" y1="40" x2="225" y2="360" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#d1903b" />
+              <stop offset=".48" stop-color="#b44622" />
+              <stop offset="1" stop-color="#7e2d18" />
+            </linearGradient>
+            <pattern id="kernels" width="17" height="19" patternUnits="userSpaceOnUse" patternTransform="rotate(3)">
+              <circle cx="8" cy="9" r="5.7" stroke="#efdcb9" stroke-opacity=".54" />
+            </pattern>
+          </defs>
+          <circle cx="142" cy="183" r="139" stroke="#171410" stroke-opacity=".15" />
+          <circle cx="142" cy="183" r="115" stroke="#171410" stroke-opacity=".15" />
+          <path d="M145 349C119 289 99 220 103 145C107 81 124 37 149 14C179 51 194 106 190 171C186 246 172 307 145 349Z" fill="url(#cornFill)" stroke="#171410" stroke-width="1.3" />
+          <path d="M145 348C120 286 103 216 108 147C112 82 126 43 149 21C175 57 188 111 184 171C180 242 169 304 145 348Z" fill="url(#kernels)" opacity=".92" />
+          <path d="M149 19C158 90 157 166 147 244C141 287 138 320 145 349" stroke="#5a2012" stroke-opacity=".42" />
+          <path d="M117 317C66 293 33 245 30 182C31 251 47 312 107 343C123 350 136 351 145 349" fill="#1d1c16" />
+          <path d="M171 303C218 280 247 236 258 179C263 244 236 302 181 335C165 345 154 348 145 349" fill="#1d1c16" />
+          <path d="M56 67C83 95 103 126 113 162M236 95C211 121 197 149 190 181M41 213C68 214 90 219 109 230M249 232C221 231 201 235 183 244" stroke="#171410" stroke-width="1.1" stroke-linecap="round" />
+          <path d="M66 61C96 91 116 123 124 165M225 89C201 118 188 150 183 187M50 208C78 207 100 212 118 224M239 227C215 228 197 233 179 244" stroke="#d5b075" stroke-opacity=".55" stroke-linecap="round" />
+          <circle cx="139" cy="8" r="4" fill="#b94723" />
+          <path d="M26 378H264" stroke="#171410" stroke-opacity=".3" />
+        </svg>
+
+        <div class="poster__title">
+          玉米<em>神</em>
+        </div>
+        <div class="poster__bottom">
+          <span>THE GOD OF<br />MAIZE &amp; HARVEST</span>
+          <strong>01 / 02</strong>
+        </div>
+      </article>
+
+      <article class="poster poster--rain">
+        <div class="poster__top">
+          <strong>RAIN<br />GOD</strong>
+          <span>MUSEO / 雨神<br />美洲展 · 快闪企划</span>
+        </div>
+
+        <svg class="rain-art" viewBox="0 0 330 380" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="rainLine" x1="70" y1="0" x2="260" y2="380" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#cbd7c7" />
+              <stop offset="1" stop-color="#728f7f" stop-opacity=".12" />
+            </linearGradient>
+            <radialGradient id="rainCore" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(185 190) rotate(42) scale(115)">
+              <stop stop-color="#bdcbb9" stop-opacity=".45" />
+              <stop offset="1" stop-color="#5f7f6f" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+          <circle cx="188" cy="190" r="142" fill="url(#rainCore)" />
+          <circle cx="188" cy="180" r="106" stroke="#b7c9bc" stroke-opacity=".24" />
+          <circle cx="188" cy="180" r="78" stroke="#b7c9bc" stroke-opacity=".18" />
+          <path d="M38 20C70 70 78 121 69 179C60 237 40 288 14 337M93 0C123 64 127 131 113 200C101 263 82 316 62 373M154 0C171 62 173 126 166 188C158 256 147 318 137 380M224 0C226 65 227 127 231 192C235 255 245 320 262 380M292 17C272 75 266 133 273 190C280 248 302 300 330 340" stroke="url(#rainLine)" stroke-width="1.1" />
+          <path d="M68 297C101 264 129 251 158 256C194 263 218 291 239 331C205 345 167 349 133 344C108 339 87 323 68 297Z" fill="#708d7c" fill-opacity=".2" stroke="#b6c8bb" stroke-opacity=".42" />
+          <path d="M79 302C114 282 144 279 172 291C198 302 216 321 228 344" stroke="#d7ded2" stroke-opacity=".5" />
+          <path d="M115 57C134 34 161 29 188 41C220 54 239 81 248 117C222 99 196 91 170 92C144 92 122 104 105 127C103 101 107 77 115 57Z" fill="#9db2a3" fill-opacity=".16" stroke="#bfd0c2" stroke-opacity=".32" />
+          <path d="M65 379H310" stroke="#cfd9ce" stroke-opacity=".27" />
+          <circle cx="188" cy="180" r="3" fill="#d5ded2" />
+        </svg>
+
+        <div class="poster__title">
+          雨<em>神</em>
+        </div>
+        <div class="poster__bottom">
+          <span>WATER · RITUAL<br />MEMORY</span>
+          <strong>02 / 02</strong>
+        </div>
+      </article>
+
+      <div class="museum__seal">
+        TWO
+        <br />
+        WORLDS
+        <br />
+        ONE
+        <br />
+        STORY
+      </div>
+      <div class="museum__caption">
+        VISUAL SYSTEM<br />
+        FROM ARTIFACT<br />
+        TO RETAIL
+      </div>
+
+      <div class="board-footer">
+        <span>LI XINYU / AIGC ART DIRECTION</span>
+        <span>POSTER · RETAIL · SOCIAL / 01</span>
+      </div>
+    </section>
+
+    <section class="board seasons" id="seasons">
+      <div class="meta">
+        <div class="meta__group">
+          <span class="meta__dot"></span>
+          <span>BRAND FILM / DIRECTOR'S CUT</span>
+        </div>
+        <div class="meta__group">
+          <span>16:9 · COLOR / SOUND</span>
+          <span class="meta__rule"></span>
+          <span>2024</span>
+        </div>
+      </div>
+      <div class="corner corner--tl"></div>
+      <div class="corner corner--br"></div>
+      <div class="seasons__light"></div>
+      <div class="seasons__window"></div>
+      <div class="seasons__horizon"></div>
+
+      <div class="seasons__copy">
+        <div class="seasons__eyebrow">
+          <i></i>
+          <span>WAHAHA BRAND FILM / A STORY ABOUT RETURNING</span>
+        </div>
+        <h1>
+          四季
+          <span>有时</span>
+        </h1>
+        <div class="seasons__sub">
+          <strong>
+            DIR. / EDIT.<br />
+            LI XINYU
+          </strong>
+          <span>
+            A 3′18″ FILM ABOUT SEASONS,<br />
+            PEOPLE AND SMALL MOMENTS<br />
+            THAT COME BACK AGAIN.
+          </span>
+        </div>
+      </div>
+
+      <div class="seasons__bottle">
+        <div class="bottle__label">
+          四季
+          <small>SEASONS / 2024</small>
+        </div>
+      </div>
+
+      <div class="seasons__right-copy">
+        <b>03′18″</b>
+        &nbsp;&nbsp;16:9 MASTER / 9:16 CUTDOWN
+      </div>
+      <div class="seasons__counter">
+        SCENES / DAYS
+        <strong>03 / 07</strong>
+      </div>
+
+      <div class="seasons__strip">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="board-footer">
+        <span>LI XINYU / DIRECTOR · EDITOR</span>
+        <span>TAKE 07 / FINAL FRAME / 02</span>
+      </div>
+    </section>
+
+    <section class="board aigc" id="aigc">
+      <div class="aigc__grid"></div>
+      <div class="meta">
+        <div class="meta__group">
+          <span class="meta__dot"></span>
+          <span>SYNTHETIC ORDER / VISUAL STUDY</span>
+        </div>
+        <div class="meta__group">
+          <span>AIGC ART DIRECTION</span>
+          <span class="meta__rule"></span>
+          <span>2026—</span>
+        </div>
+      </div>
+      <div class="corner corner--tl"></div>
+      <div class="corner corner--br"></div>
+      <div class="aigc__index">02</div>
+      <div class="aigc__chrome"></div>
+      <div class="aigc__core"></div>
+      <div class="aigc__axis aigc__axis--h"></div>
+      <div class="aigc__axis aigc__axis--v"></div>
+
+      <div class="aigc__side-note">
+        A STUDY IN VISUAL<br />
+        CONSISTENCY, CONTROL<br />
+        AND GENERATIVE FORM.
+      </div>
+      <div class="aigc__spec">
+        <span>MODEL</span>
+        <strong>T2I / REF</strong>
+        <span>OUTPUT</span>
+        <strong>BRAND SYSTEM</strong>
+      </div>
+
+      <div class="aigc__type">
+        <p>IMAGES ARE NOT ENDINGS. THEY ARE DIRECTIONS.</p>
+        <h1>
+          Synthetic
+          <span>Order</span>
+        </h1>
+      </div>
+
+      <div class="board-footer">
+        <span>LI XINYU / AIGC VISUAL RESEARCH</span>
+        <span>PROMPT · REFERENCE · SYSTEM / 03</span>
+      </div>
+    </section>
+
+    <section class="board campus" id="campus">
+      <div class="meta">
+        <div class="meta__group">
+          <span class="meta__dot"></span>
+          <span>DIGITAL MEDIA SCHOOL / CONTENT PRACTICE</span>
+        </div>
+        <div class="meta__group">
+          <span>SOCIAL · POSTER · VIDEO</span>
+          <span class="meta__rule"></span>
+          <span>2024—2026</span>
+        </div>
+      </div>
+      <div class="corner corner--tl"></div>
+      <div class="corner corner--br"></div>
+      <div class="campus__number">04</div>
+
+      <div class="campus__title">
+        <span>CAMPUS IN MOTION / 内容与活动影像</span>
+        <h1>
+          持续
+          <span>发生。</span>
+        </h1>
+        <p>
+          把每一次活动、每一篇推文、每一个现场，
+          变成可以被持续识别的校园视觉语言。
+        </p>
+      </div>
+
+      <div class="campus__collage">
+        <div class="campus__tile campus__tile--one">
+          <span><b>01</b><b>SPORTS MEET</b></span>
+        </div>
+        <div class="campus__tile campus__tile--two">
+          <span><b>02</b><b>WELCOME NIGHT</b></span>
+        </div>
+        <div class="campus__tile campus__tile--three">
+          <div class="tile-copy">
+            <strong>8 条影像 /<br /><em>6 场现场</em></strong>
+            SHOOT · EDIT · PUBLISH<br />
+            A STEADY VISUAL RHYTHM.
+          </div>
+          <span><b>03</b><b>STORY ARCHIVE</b></span>
+        </div>
+        <div class="campus__tile campus__tile--four">
+          <span><b>04</b><b>LIVE</b></span>
+        </div>
+      </div>
+
+      <div class="campus__stats">
+        <div><strong>25+</strong>ARTICLES</div>
+        <div><strong>2600+</strong>TOP READ</div>
+        <div><strong>08</strong>SHORT FILMS</div>
+      </div>
+
+      <div class="board-footer">
+        <span>LI XINYU / CONTENT &amp; VISUAL</span>
+        <span>MAKE THE ORDINARY VISIBLE / 04</span>
+      </div>
+    </section>
+  </body>
+</html>

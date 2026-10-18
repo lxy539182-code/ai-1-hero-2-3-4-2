@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hero motion field</title>
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #050606;
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="motion-field" width="1600" height="900"></canvas>
+    <script>
+      const canvas = document.querySelector('#motion-field')
+      const ctx = canvas.getContext('2d', { alpha: false })
+      const width = canvas.width
+      const height = canvas.height
+      const start = performance.now()
+      const loopSeconds = 8
+
+      const dust = Array.from({ length: 150 }, (_, index) => ({
+        x: ((index * 193.17) % width) + ((index * 0.37) % 1),
+        y: ((index * 347.73) % height) + ((index * 0.73) % 1),
+        size: 0.3 + ((index * 0.619) % 1.5),
+        speed: 0.2 + ((index * 0.37) % 1),
+      }))
+
+      function drawBackground() {
+        const base = ctx.createLinearGradient(0, 0, width, height)
+        base.addColorStop(0, '#050606')
+        base.addColorStop(0.42, '#0a0b0a')
+        base.addColorStop(0.76, '#0e0b08')
+        base.addColorStop(1, '#050505')
+        ctx.fillStyle = base
+        ctx.fillRect(0, 0, width, height)
+
+        const warmField = ctx.createRadialGradient(1230, 430, 20, 1230, 430, 680)
+        warmField.addColorStop(0, 'rgba(154, 93, 49, 0.24)')
+        warmField.addColorStop(0.38, 'rgba(109, 65, 35, 0.1)')
+        warmField.addColorStop(1, 'rgba(5, 6, 6, 0)')
+        ctx.fillStyle = warmField
+        ctx.fillRect(0, 0, width, height)
+
+        const coolField = ctx.createRadialGradient(170, 720, 10, 300, 620, 520)
+        coolField.addColorStop(0, 'rgba(70, 91, 77, 0.12)')
+        coolField.addColorStop(1, 'rgba(5, 6, 6, 0)')
+        ctx.fillStyle = coolField
+        ctx.fillRect(0, 0, width, height)
+      }
+
+      function drawGrid(phase) {
+        ctx.save()
+        ctx.translate(-phase * 22, 0)
+        ctx.strokeStyle = 'rgba(238, 231, 217, 0.032)'
+        ctx.lineWidth = 1
+        for (let x = 0; x <= width + 60; x += 160) {
+          ctx.beginPath()
+          ctx.moveTo(x + 0.5, 0)
+          ctx.lineTo(x + 0.5, height)
+          ctx.stroke()
+        }
+        for (let y = 0; y <= height; y += 150) {
+          ctx.beginPath()
+          ctx.moveTo(0, y + 0.5)
+          ctx.lineTo(width, y + 0.5)
+          ctx.stroke()
+        }
+        ctx.restore()
+      }
+
+      function drawTopography(t, phase) {
+        const centerX = 1120
+        const centerY = 450
+        const bandCount = 72
+
+        for (let band = 0; band < bandCount; band += 1) {
+          const normalized = band / bandCount
+          const baseY = 140 + normalized * 620
+          const amplitude = 32 + normalized * 74
+          ctx.beginPath()
+
+          for (let x = -40; x <= width + 40; x += 16) {
+            const distance = Math.abs(x - centerX) / width
+            const waveA =
+              Math.sin(x * 0.0042 + phase * 1.2 + normalized * 5.8) *
+              amplitude *
+              (1 - distance * 0.22)
+            const waveB =
+              Math.cos(x * 0.0097 - phase * 1.8 + normalized * 9.2) * 8
+            const waveC =
+              Math.sin(x * 0.0019 + t * 0.18 + normalized * 2.3) *
+              (48 + normalized * 42)
+            const y = baseY + waveA + waveB + waveC
+
+            if (x === -40) ctx.moveTo(x, y)
+            else ctx.lineTo(x, y)
+          }
+
+          const alpha =
+            normalized < 0.5
+              ? 0.052 + normalized * 0.095
+              : 0.098 - (normalized - 0.5) * 0.072
+          const goldMix = 0.55 + Math.sin(normalized * Math.PI * 2 + phase) * 0.2
+          ctx.strokeStyle = `rgba(${Math.round(151 + goldMix * 38)}, ${Math.round(
+            106 + goldMix * 28,
+          )}, ${Math.round(67 + goldMix * 23)}, ${alpha})`
+          ctx.lineWidth = normalized > 0.47 && normalized < 0.53 ? 1.1 : 0.65
+          ctx.stroke()
+        }
+      }
+
+      function drawRibbons(t, phase) {
+        const ribbons = [
+          {
+            y: 395,
+            amp: 94,
+            freq: 0.0029,
+            speed: 1.4,
+            color: 'rgba(196, 144, 94, 0.23)',
+            width: 1.1,
+          },
+          {
+            y: 470,
+            amp: 130,
+            freq: 0.0022,
+            speed: 1.1,
+            color: 'rgba(237, 221, 194, 0.12)',
+            width: 0.8,
+          },
+          {
+            y: 540,
+            amp: 108,
+            freq: 0.0035,
+            speed: 1.9,
+            color: 'rgba(155, 103, 68, 0.17)',
+            width: 0.7,
+          },
+        ]
+
+        ribbons.forEach((ribbon, index) => {
+          ctx.beginPath()
+          for (let x = -60; x <= width + 60; x += 11) {
+            const y =
+              ribbon.y +
+              Math.sin(x * ribbon.freq + phase * ribbon.speed + index * 1.8) *
+                ribbon.amp +
+              Math.sin(x * 0.0101 - phase * 0.9 + index) * 14 +
+              Math.sin(t * 0.12 + index) * 9
+            if (x === -60) ctx.moveTo(x, y)
+            else ctx.lineTo(x, y)
+          }
+          ctx.strokeStyle = ribbon.color
+          ctx.lineWidth = ribbon.width
+          ctx.stroke()
+        })
+      }
+
+      function drawOrb(phase) {
+        const pulse = 0.5 + Math.sin(phase) * 0.5
+        const orbX = 1370
+        const orbY = 330
+        const radius = 235 + pulse * 12
+
+        ctx.save()
+        ctx.globalCompositeOperation = 'lighter'
+        const aura = ctx.createRadialGradient(orbX, orbY, 8, orbX, orbY, radius * 2.3)
+        aura.addColorStop(0, `rgba(237, 165, 104, ${0.12 + pulse * 0.04})`)
+        aura.addColorStop(0.24, `rgba(177, 111, 69, ${0.05 + pulse * 0.025})`)
+        aura.addColorStop(1, 'rgba(5, 6, 6, 0)')
+        ctx.fillStyle = aura
+        ctx.beginPath()
+        ctx.arc(orbX, orbY, radius * 2.3, 0, Math.PI * 2)
+        ctx.fill()
+
+        for (let ring = 0; ring < 5; ring += 1) {
+          const ringRadius = 96 + ring * 51 + Math.sin(phase + ring * 0.8) * 5
+          ctx.beginPath()
+          ctx.arc(
+            orbX + Math.sin(phase * 0.7 + ring) * 12,
+            orbY + Math.cos(phase + ring * 0.6) * 8,
+            ringRadius,
+            0,
+            Math.PI * 2,
+          )
+          ctx.strokeStyle = `rgba(217, 169, 119, ${0.028 + ring * 0.009})`
+          ctx.lineWidth = 0.65
+          ctx.stroke()
+        }
+        ctx.restore()
+      }
+
+      function drawDust(t) {
+        ctx.save()
+        for (let i = 0; i < dust.length; i += 1) {
+          const particle = dust[i]
+          const y = (particle.y - t * particle.speed * 5 + height * 2) % height
+          const x =
+            particle.x +
+            Math.sin(t * 0.08 + i * 0.7) * 7 +
+            Math.cos(t * 0.035 + i) * 3
+          const twinkle = 0.08 + (Math.sin(t * 0.9 + i * 1.7) + 1) * 0.055
+          ctx.fillStyle = `rgba(230, 215, 194, ${twinkle})`
+          ctx.fillRect(x, y, particle.size, particle.size)
+        }
+        ctx.restore()
+      }
+
+      function drawScanLine(t) {
+        const y = ((t * 18) % (height + 300)) - 150
+        const gradient = ctx.createLinearGradient(0, y - 100, 0, y + 100)
+        gradient.addColorStop(0, 'rgba(255, 255, 255, 0)')
+        gradient.addColorStop(0.5, 'rgba(255, 185, 126, 0.025)')
+        gradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
+        ctx.fillStyle = gradient
+        ctx.fillRect(0, y - 100, width, 200)
+      }
+
+      function drawVignette() {
+        const vignette = ctx.createRadialGradient(
+          width * 0.48,
+          height * 0.5,
+          160,
+          width * 0.48,
+          height * 0.5,
+          width * 0.7,
+        )
+        vignette.addColorStop(0, 'rgba(0, 0, 0, 0)')
+        vignette.addColorStop(0.68, 'rgba(0, 0, 0, 0.18)')
+        vignette.addColorStop(1, 'rgba(0, 0, 0, 0.72)')
+        ctx.fillStyle = vignette
+        ctx.fillRect(0, 0, width, height)
+
+        const edge = ctx.createLinearGradient(0, 0, width, 0)
+        edge.addColorStop(0, 'rgba(3, 4, 4, 0.47)')
+        edge.addColorStop(0.42, 'rgba(3, 4, 4, 0)')
+        edge.addColorStop(1, 'rgba(3, 4, 4, 0.18)')
+        ctx.fillStyle = edge
+        ctx.fillRect(0, 0, width, height)
+      }
+
+      function drawGrain() {
+        ctx.save()
+        ctx.globalAlpha = 0.038
+        for (let i = 0; i < 640; i += 1) {
+          const x = Math.random() * width
+          const y = Math.random() * height
+          ctx.fillStyle = Math.random() > 0.46 ? '#fff8e9' : '#000000'
+          ctx.fillRect(x, y, 1, 1)
+        }
+        ctx.restore()
+      }
+
+      function render(now) {
+        const elapsed = (now - start) / 1000
+        const t = elapsed % loopSeconds
+        const phase = (t / loopSeconds) * Math.PI * 2
+
+        drawBackground()
+        drawGrid(phase)
+        drawOrb(phase)
+        drawTopography(t, phase)
+        drawRibbons(t, phase)
+        drawDust(t)
+        drawScanLine(t)
+        drawVignette()
+        drawGrain()
+
+        requestAnimationFrame(render)
+      }
+
+      requestAnimationFrame(render)
+    </script>
+  </body>
+</html>

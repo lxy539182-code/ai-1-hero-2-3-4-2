@@ -1,0 +1,44 @@
+[
+  {
+    "id": "aigc-coffee",
+    "file": "C:/Users/az/Desktop/zuop/AIGC/创意广告视频/创意咖啡广告.mp4",
+    "duration": 46.28,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "id": "aigc-fight",
+    "file": "C:/Users/az/Desktop/zuop/AIGC/打斗30s/赛博朋克风打斗.mp4",
+    "duration": 28,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "id": "aigc-moka",
+    "file": "C:/Users/az/Desktop/zuop/新建文件夹 (2)/摩卡壶（广告类ALGC).mp4",
+    "duration": 39.29,
+    "width": 1920,
+    "height": 1080
+  },
+  {
+    "id": "aigc-blank",
+    "file": "C:/Users/az/Desktop/zuop/ALGC/空白（故事类ALGC作品）.mp4",
+    "duration": 99.4,
+    "width": 1922,
+    "height": 1080
+  },
+  {
+    "id": "interaction-control",
+    "file": "C:/Users/az/Desktop/zuop/td交互/手势控制.mp4",
+    "duration": 38.93,
+    "width": 1280,
+    "height": 725
+  },
+  {
+    "id": "story-yanduo",
+    "file": "C:/Users/az/Desktop/zuop/情景故事/烟堕.mp4",
+    "duration": 1125.68,
+    "width": 967,
+    "height": 544
+  }
+]

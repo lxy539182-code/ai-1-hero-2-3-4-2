@@ -1,0 +1,6 @@
+node_modules/
+dist/
+work/preview/
+work/recordings/
+work/*.png
+*.log

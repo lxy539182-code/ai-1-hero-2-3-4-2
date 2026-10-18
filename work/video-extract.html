@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video extraction</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: #080909;
+      }
+
+      video {
+        width: 480px;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script>
+      window.readVideoFrames = async (videoUrl, fractions) => {
+        const video = document.createElement('video')
+        video.muted = true
+        video.playsInline = true
+        video.preload = 'auto'
+        video.src = videoUrl
+        document.body.append(video)
+
+        await new Promise((resolve, reject) => {
+          video.addEventListener('loadedmetadata', resolve, { once: true })
+          video.addEventListener(
+            'error',
+            () => reject(video.error || new Error('Video failed to load')),
+            { once: true },
+          )
+        })
+
+        await new Promise((resolve) => {
+          if (video.readyState >= 2) resolve()
+          else video.addEventListener('loadeddata', resolve, { once: true })
+        })
+
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const context = canvas.getContext('2d')
+        const frames = []
+
+        for (const fraction of fractions) {
+          video.currentTime = Math.min(
+            Math.max(video.duration * fraction, 0.05),
+            Math.max(video.duration - 0.08, 0.05),
+          )
+
+          await new Promise((resolve) => {
+            video.addEventListener('seeked', resolve, { once: true })
+          })
+          await new Promise((resolve) => setTimeout(resolve, 140))
+
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+          frames.push({
+            fraction,
+            dataUrl: canvas.toDataURL('image/jpeg', 0.92),
+          })
+        }
+
+        video.remove()
+        return {
+          duration: video.duration,
+          width: video.videoWidth,
+          height: video.videoHeight,
+          frames,
+        }
+      }
+    </script>
+  </body>
+</html>
