@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   capabilities,
   experience,
+  mediaUrl,
   navItems,
   profileStats,
   projectFilters,
@@ -165,10 +166,10 @@ function Hero() {
         muted
         loop
         playsInline
-        poster="/media/hero-poster.jpg"
+        poster={mediaUrl('/media/hero-poster.jpg')}
         aria-hidden="true"
       >
-        <source src="/media/hero-loop.webm" type="video/webm" />
+        <source src={mediaUrl('/media/hero-loop.webm')} type="video/webm" />
       </video>
       <div className="hero__wash" aria-hidden="true" />
       <div className="hero__grid" aria-hidden="true" />

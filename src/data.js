@@ -6,6 +6,11 @@ export const navItems = [
   { id: 'contact', index: '04', label: '联系' },
 ]
 
+export function mediaUrl(path) {
+  if (!path || /^https?:\/\//.test(path)) return path
+  return `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`
+}
+
 export const profileStats = [
   { value: '80%', label: '重点展区周销量提升', note: 'RETAIL IMPACT' },
   { value: '30+', label: '单支广告镜头执行', note: 'ON ONE FILM' },
@@ -41,7 +46,7 @@ export const projectFilters = [
   { id: 'film', label: '情景短片', en: 'FILM', count: '01' },
 ]
 
-export const projects = [
+const projectData = [
   {
     id: 'coffee-film',
     index: '01',
@@ -54,7 +59,8 @@ export const projects = [
     image: '/media/projects/aigc-coffee-cover.webp',
     video: '/media/projects/aigc-coffee-preview.webm',
     previewLabel: '6 秒无声预览 · 原片 00:46',
-    downloadUrl: '/downloads/coffee-film.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/coffee-film.mp4',
     downloadDuration: '00:46',
     downloadSize: '37.2 MB',
     downloadName: '李鑫宇_从种子到一杯_完整成片.mp4',
@@ -105,7 +111,8 @@ export const projects = [
     image: '/media/projects/aigc-fight-cover.webp',
     video: '/media/projects/aigc-fight-preview.webm',
     previewLabel: '6 秒无声预览 · 原片 00:28',
-    downloadUrl: '/downloads/neon-fight.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/neon-fight.mp4',
     downloadDuration: '00:28',
     downloadSize: '24.0 MB',
     downloadName: '李鑫宇_霓虹雨巷_完整成片.mp4',
@@ -156,7 +163,8 @@ export const projects = [
     image: '/media/projects/aigc-moka-cover.webp',
     video: '/media/projects/aigc-moka-preview.webm',
     previewLabel: '6 秒无声预览 · 原片 00:39',
-    downloadUrl: '/downloads/moka-extraction.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/moka-extraction.mp4',
     downloadDuration: '00:39',
     downloadSize: '38.4 MB',
     downloadName: '李鑫宇_摩卡壶_萃取时刻_完整成片.mp4',
@@ -202,7 +210,8 @@ export const projects = [
     image: '/media/projects/aigc-blank-cover.webp',
     video: '/media/projects/aigc-blank-preview.webm',
     previewLabel: '7 秒无声预览 · 原片 01:39',
-    downloadUrl: '/downloads/blank-story.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/blank-story.mp4',
     downloadDuration: '01:39',
     downloadSize: '140.2 MB',
     downloadName: '李鑫宇_空白_完整成片.mp4',
@@ -248,7 +257,8 @@ export const projects = [
     image: '/media/projects/interaction-control-cover.webp',
     video: '/media/projects/interaction-control-preview.webm',
     previewLabel: '6 秒无声预览 · DEMO 00:39',
-    downloadUrl: '/downloads/gesture-particles.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/gesture-particles.mp4',
     downloadDuration: '00:39',
     downloadSize: '7.6 MB',
     downloadName: '李鑫宇_手势粒子场_完整演示.mp4',
@@ -289,7 +299,8 @@ export const projects = [
     image: '/media/projects/story-yanduo-cover.webp',
     video: '/media/projects/story-yanduo-preview.webm',
     previewLabel: '7 秒无声预览 · 原片 18:46',
-    downloadUrl: '/downloads/yanduo-story.mp4',
+    downloadUrl:
+      'https://github.com/lxy539182-code/ai-1-hero-2-3-4-2/releases/download/portfolio-films-v1/yanduo-story.mp4',
     downloadDuration: '18:46',
     downloadSize: '158.0 MB',
     downloadName: '李鑫宇_烟堕_完整成片.mp4',
@@ -319,6 +330,16 @@ export const projects = [
     ],
   },
 ]
+
+export const projects = projectData.map((project) => ({
+  ...project,
+  image: mediaUrl(project.image),
+  video: mediaUrl(project.video),
+  gallery: project.gallery?.map((image) => ({
+    ...image,
+    src: mediaUrl(image.src),
+  })),
+}))
 
 export const capabilities = [
   {
